@@ -7474,6 +7474,235 @@ declare module WinJS.UI {
     }
 
     /**
+     * Displays a SplitView which renders a collapsable pane next to arbitrary HTML content.
+     */
+    class SplitView  {
+        //#region Constructors
+
+        /**
+         * Creates a new SplitView control.
+         * @param element The DOM element that hosts the SplitView control.
+         * @param options An object that contains one or more property/value pairs to apply to the new control.
+         *      Each property of the options object corresponds to one of the control's properties or events.
+         *      Event names must begin with "on". For example, to provide a handler for the invoked event,
+         *      add a property named "oninvoked" to the options object and set its value to the event handler.
+         */
+        constructor(element?: HTMLElement, options?: any);
+
+        //#endregion Constructors
+
+        //#region Events
+
+        /**
+         * Raised just before opening the pane. Call preventDefault on this event to stop the pane from opening.
+         */
+        onbeforeopen: { (event: CustomEvent): void };
+
+        /**
+         * Raised immediately after the pane is fully opened.
+         */
+        onafteropen: { (event: CustomEvent): void };
+
+        /**
+         * Raised just before closing the pane. Call preventDefault on this event to stop the pane from closing.
+         */
+        onbeforeclose: { (event: CustomEvent): void };
+
+        /**
+         * Raised immediately after the pane is fully closed.
+         */
+        onafterclose: { (event: CustomEvent): void };
+
+        //#endregion Events
+
+        //#region Methods
+
+        /**
+         * Disposes this control.
+         */
+        dispose(): void;
+
+        /**
+         * Opens the SplitView's pane.
+         */
+        openPane(): void;
+
+        /**
+         * Closes the SplitView's pane.
+         */
+        closePane(): void;
+
+        //#region Methods.DOMEventMixin
+
+        /**
+         * Adds an event listener to the control.
+         * @param type The type (name) of the event.
+         * @param listener The listener to invoke when the event gets raised.
+         * @param useCapture true to initiate capture; otherwise, false.
+         */
+        addEventListener(type: string, listener: Function, useCapture?: boolean): void;
+
+        /**
+         * Removes an event listener from the control.
+         * @param type The type (name) of the event.
+         * @param listener The listener to remove.
+         * @param useCapture true to initiate capture; otherwise, false.
+         */
+        removeEventListener(type: string, listener: Function, useCapture?: boolean): void;
+
+        //#endregion Methods.DOMEventMixin
+
+        //#endregion Methods
+
+        //#region Properties
+
+        /**
+         * Gets the DOM element that hosts the SplitView control.
+         */
+        element: HTMLElement;
+
+        /**
+         * Gets the DOM element that hosts the SplitView pane.
+         */
+        paneElement: HTMLElement;
+
+        /**
+         * Gets the DOM element that hosts the SplitView's content.
+         */
+        contentElement: HTMLElement;
+
+        /**
+         * Gets or sets the display mode of the SplitView's pane when it is hidden.
+         */
+        closedDisplayMode: string;
+
+        /**
+         * Gets or sets the display mode of the SplitView's pane when it is open.
+         */
+        openedDisplayMode: string;
+
+        /**
+         * Gets or sets the placement of the SplitView's pane.
+         */
+        panePlacement: string;
+
+        /**
+         * Gets or sets whether the SpitView's pane is currently opened.
+         */
+        paneOpened: boolean;
+
+        /**
+         * Display options for a SplitView's pane when it is closed.
+         */
+        static ClosedDisplayMode: {
+            /** When the pane is closed, it is not visible and doesn't take up any space. */
+            none: string;
+            /** When the pane is closed, it occupies space leaving less room for the SplitView's content. */
+            inline: string;
+        };
+
+        /**
+         * Display options for a SplitView's pane when it is open.
+         */
+        static OpenedDisplayMode: {
+            /** When the pane is open, it occupies space leaving less room for the SplitView's content. */
+            inline: string;
+            /** When the pane is open, it doesn't take up any space and it is light dismissable. */
+            overlay: string;
+        };
+
+        /**
+         * Placement options for a SplitView's pane.
+         */
+        static PanePlacement: {
+            /** Pane is positioned left of the SplitView's content. */
+            left: string;
+            /** Pane is positioned right of the SplitView's content. */
+            right: string;
+            /** Pane is positioned above the SplitView's content. */
+            top: string;
+            /** Pane is positioned below the SplitView's content. */
+            bottom: string;
+        };
+
+        //#endregion Properties
+    }
+
+    /**
+     * Displays a button which is used for opening and closing a SplitView's pane.
+     */
+    class SplitViewPaneToggle {
+        //#region Constructors
+
+        /**
+         * Creates a new SplitViewPaneToggle control.
+         * @param element The DOM element that hosts the SplitViewPaneToggle control.
+         * @param options An object that contains one or more property/value pairs to apply to the new control.
+         *      Each property of the options object corresponds to one of the control's properties or events.
+         *      Event names must begin with "on". For example, to provide a handler for the invoked event,
+         *      add a property named "oninvoked" to the options object and set its value to the event handler.
+         */
+        constructor(element?: HTMLElement, options?: any);
+
+        //#endregion Constructors
+
+        //#region Events
+
+        /**
+         * Fires when the user invokes the button with mouse/keyboard/touch.
+         * Does not fire if the SplitViewPaneToggle's state changes due to UIA
+         * (i.e. aria-expanded being set) or due to the SplitView pane opening/closing.
+         */
+        oninvoked: { (event: CustomEvent): void };
+
+        //#endregion Events
+
+        //#region Methods
+
+        /**
+         * Disposes this control.
+         */
+        dispose(): void;
+
+        //#region Methods.DOMEventMixin
+
+        /**
+         * Adds an event listener to the control.
+         * @param type The type (name) of the event.
+         * @param listener The listener to invoke when the event gets raised.
+         * @param useCapture true to initiate capture; otherwise, false.
+         */
+        addEventListener(type: string, listener: Function, useCapture?: boolean): void;
+
+        /**
+         * Removes an event listener from the control.
+         * @param type The type (name) of the event.
+         * @param listener The listener to remove.
+         * @param useCapture true to initiate capture; otherwise, false.
+         */
+        removeEventListener(type: string, listener: Function, useCapture?: boolean): void;
+
+        //#endregion Methods.DOMEventMixin
+
+        //#endregion Methods
+
+        //#region Properties
+
+        /**
+         * Gets the DOM element that hosts the SplitViewPaneToggle control.
+         */
+        element: HTMLElement;
+
+        /**
+         * Gets or sets the DOM element of the SplitView that is associated with the SplitViewPaneToggle control.
+         * When the SplitViewPaneToggle is invoked, it'll toggle this SplitView's pane.
+         */
+        splitView: HTMLElement;
+
+        //#endregion Properties
+    }
+
+    /**
      * A special data source for VirtualizedDataSource.computeDataSourceGroups
      **/
     interface IListGroupDataSource<T> extends IListDataSource<T> {
