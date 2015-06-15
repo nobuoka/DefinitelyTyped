@@ -7629,6 +7629,80 @@ declare module WinJS.UI {
     }
 
     /**
+     * Displays a button which is used for opening and closing a SplitView's pane.
+     */
+    class SplitViewPaneToggle {
+        //#region Constructors
+
+        /**
+         * Creates a new SplitViewPaneToggle control.
+         * @param element The DOM element that hosts the SplitViewPaneToggle control.
+         * @param options An object that contains one or more property/value pairs to apply to the new control.
+         *      Each property of the options object corresponds to one of the control's properties or events.
+         *      Event names must begin with "on". For example, to provide a handler for the invoked event,
+         *      add a property named "oninvoked" to the options object and set its value to the event handler.
+         */
+        constructor(element?: HTMLElement, options?: any);
+
+        //#endregion Constructors
+
+        //#region Events
+
+        /**
+         * Fires when the user invokes the button with mouse/keyboard/touch.
+         * Does not fire if the SplitViewPaneToggle's state changes due to UIA
+         * (i.e. aria-expanded being set) or due to the SplitView pane opening/closing.
+         */
+        oninvoked: { (event: CustomEvent): void };
+
+        //#endregion Events
+
+        //#region Methods
+
+        /**
+         * Disposes this control.
+         */
+        dispose(): void;
+
+        //#region Methods.DOMEventMixin
+
+        /**
+         * Adds an event listener to the control.
+         * @param type The type (name) of the event.
+         * @param listener The listener to invoke when the event gets raised.
+         * @param useCapture true to initiate capture; otherwise, false.
+         */
+        addEventListener(type: string, listener: Function, useCapture?: boolean): void;
+
+        /**
+         * Removes an event listener from the control.
+         * @param type The type (name) of the event.
+         * @param listener The listener to remove.
+         * @param useCapture true to initiate capture; otherwise, false.
+         */
+        removeEventListener(type: string, listener: Function, useCapture?: boolean): void;
+
+        //#endregion Methods.DOMEventMixin
+
+        //#endregion Methods
+
+        //#region Properties
+
+        /**
+         * Gets the DOM element that hosts the SplitViewPaneToggle control.
+         */
+        element: HTMLElement;
+
+        /**
+         * Gets or sets the DOM element of the SplitView that is associated with the SplitViewPaneToggle control.
+         * When the SplitViewPaneToggle is invoked, it'll toggle this SplitView's pane.
+         */
+        splitView: HTMLElement;
+
+        //#endregion Properties
+    }
+
+    /**
      * A special data source for VirtualizedDataSource.computeDataSourceGroups
      **/
     interface IListGroupDataSource<T> extends IListDataSource<T> {
