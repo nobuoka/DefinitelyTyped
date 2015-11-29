@@ -4,16 +4,16 @@
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
 /* *****************************************************************************
-Copyright (c) Microsoft Corporation. All rights reserved. 
+Copyright (c) Microsoft Corporation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0  
- 
+License at http://www.apache.org/licenses/LICENSE-2.0
+
 THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE, 
-MERCHANTABLITY OR NON-INFRINGEMENT. 
- 
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
 See the Apache Version 2.0 License for specific language governing permissions
 and limitations under the License.
 ***************************************************************************** */
@@ -31,9 +31,21 @@ declare module Windows {
                 collectionChange: Windows.Foundation.Collections.CollectionChange;
                 index: number;
             }
-            export interface IPropertySet extends Windows.Foundation.Collections.IObservableMap<string, any>, Windows.Foundation.Collections.IMap<string, any>, Windows.Foundation.Collections.IIterable<Windows.Foundation.Collections.IKeyValuePair<string, any>> {
+            export interface IPropertySet extends Windows.Foundation.Collections.IObservableMap<string, any> {
             }
-            export class PropertySet implements Windows.Foundation.Collections.IPropertySet, Windows.Foundation.Collections.IObservableMap<string, any>, Windows.Foundation.Collections.IMap<string, any>, Windows.Foundation.Collections.IIterable<Windows.Foundation.Collections.IKeyValuePair<string, any>> {
+            export class PropertySet implements Windows.Foundation.Collections.IPropertySet {
+                size: number;
+                onmapchanged: any/* TODO */;
+                lookup(key: string): any;
+                hasKey(key: string): boolean;
+                getView(): Windows.Foundation.Collections.IMapView<string, any>;
+                insert(key: string, value: any): boolean;
+                remove(key: string): void;
+                clear(): void;
+                first(): Windows.Foundation.Collections.IIterator<Windows.Foundation.Collections.IKeyValuePair<string, any>>;
+            }
+            /** Windows Phone only. */
+            export class ValueSet implements Windows.Foundation.Collections.IPropertySet {
                 size: number;
                 onmapchanged: any/* TODO */;
                 lookup(key: string): any;
@@ -8516,8 +8528,14 @@ declare module Windows {
                     static authenticateAsync(options: Windows.Security.Authentication.Web.WebAuthenticationOptions, requestUri: Windows.Foundation.Uri, callbackUri: Windows.Foundation.Uri): Windows.Foundation.IAsyncOperation<Windows.Security.Authentication.Web.WebAuthenticationResult>;
                     static authenticateAsync(options: Windows.Security.Authentication.Web.WebAuthenticationOptions, requestUri: Windows.Foundation.Uri): Windows.Foundation.IAsyncOperation<Windows.Security.Authentication.Web.WebAuthenticationResult>;
                     static authenticateAndContinue(requestUri: Windows.Foundation.Uri): void;
+                    /** Windows Phone only. */
                     static authenticateAndContinue(requestUri: Windows.Foundation.Uri, callbackUri: Windows.Foundation.Uri): void;
+                    /** Windows Phone only. */
                     static authenticateAndContinue(requestUri: Windows.Foundation.Uri, callbackUri: Windows.Foundation.Uri, continuationData: Windows.Foundation.Collections.ValueSet, options: Windows.Security.Authentication.Web.WebAuthenticationOptions): void;
+                    /** Windows Phone only. */
+                    static authenticateSilentlyAsync(requestUri: Windows.Foundation.Uri): Windows.Foundation.IAsyncOperation<Windows.Security.Authentication.Web.WebAuthenticationResult>;
+                    /** Windows Phone only. */
+                    static authenticateSilentlyAsync(requestUri: Windows.Foundation.Uri, options: Windows.Security.Authentication.Web.WebAuthenticationOptions): Windows.Foundation.IAsyncOperation<Windows.Security.Authentication.Web.WebAuthenticationResult>;
                     static getCurrentApplicationCallbackUri(): Windows.Foundation.Uri;
                 }
             }
@@ -11606,12 +11624,12 @@ declare module Windows {
 				 * Gets the window (app view) for the current app.
 				**/
                 static getForCurrentView(): ApplicationView;
-				
+
 				/**
 				 * Attempts to unsnap a previously snapped app. This call will only succeed when the app is running in the foreground.
 				**/
                 static tryUnsnap(): boolean;
-				
+
 				/**
 				 * Gets the state of the current app view.
 				**/
@@ -11661,7 +11679,7 @@ declare module Windows {
 				 * Gets whether the current window (app view) is adjacent to the left edge of the screen.
 				**/
                 adjacentToLeftDisplayEdge: number;
-                
+
                 /**
                  * Gets the title bar of the app.
                 **/
