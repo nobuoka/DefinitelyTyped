@@ -31,9 +31,9 @@ declare namespace Windows {
                 collectionChange: Windows.Foundation.Collections.CollectionChange;
                 index: number;
             }
-            export interface IPropertySet extends Windows.Foundation.Collections.IObservableMap<string, any> {
+            export interface IPropertySet extends Windows.Foundation.Collections.IObservableMap<string, any>, Windows.Foundation.Collections.IMap<string, any>, Windows.Foundation.Collections.IIterable<Windows.Foundation.Collections.IKeyValuePair<string, any>> {
             }
-            export class PropertySet implements Windows.Foundation.Collections.IPropertySet {
+            export class PropertySet implements Windows.Foundation.Collections.IPropertySet, Windows.Foundation.Collections.IObservableMap<string, any>, Windows.Foundation.Collections.IMap<string, any>, Windows.Foundation.Collections.IIterable<Windows.Foundation.Collections.IKeyValuePair<string, any>> {
                 size: number;
                 onmapchanged: any/* TODO */;
                 lookup(key: string): any;
@@ -1551,6 +1551,7 @@ declare namespace Windows {
                 lockScreenCall,
                 /** Windows Phone only. The application was activated as the result of a voice command. */
                 voiceCommand,
+                lockScreen,
                 /** Windows Phone only. The application was activated after the completion of a picker. */
                 pickerReturned,
                 /** Windows Phone only. The application was activated to perform a Wallet operation. */
