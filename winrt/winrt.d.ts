@@ -45,17 +45,6 @@ declare namespace Windows {
                 first(): Windows.Foundation.Collections.IIterator<Windows.Foundation.Collections.IKeyValuePair<string, any>>;
             }
             /** Windows Phone only. */
-            export class ValueSet implements Windows.Foundation.Collections.IPropertySet {
-                size: number;
-                onmapchanged: any/* TODO */;
-                lookup(key: string): any;
-                hasKey(key: string): boolean;
-                getView(): Windows.Foundation.Collections.IMapView<string, any>;
-                insert(key: string, value: any): boolean;
-                remove(key: string): void;
-                clear(): void;
-                first(): Windows.Foundation.Collections.IIterator<Windows.Foundation.Collections.IKeyValuePair<string, any>>;
-            }
             export class ValueSet implements Windows.Foundation.Collections.IPropertySet, Windows.Foundation.Collections.IObservableMap<string, any>, Windows.Foundation.Collections.IMap<string, any>, Windows.Foundation.Collections.IIterable<Windows.Foundation.Collections.IKeyValuePair<string, any>> {
                 size: number;
                 onmapchanged: any/* TODO */;
