@@ -3,9 +3,7 @@
 
 Note: This must be compiled with the target set to ES6
 
-
 The content of index.io.js could be something like
-
 
     'use strict';
 
@@ -15,19 +13,43 @@ The content of index.io.js could be something like
      AppRegistry.registerComponent('MopNative', () => Welcome);
 
 
-
-
-NOTE:  I (Bruno Grieder) complete these definitions as I port the UI Explorer to Typescript
-If you are in a hurry for the latest definitions, or are looking for typescript examples,
-check https://github.com/bgrieder/RNTSExplorer
+For a list of complete Typescript examples: check https://github.com/bgrieder/RNTSExplorer
 
  */
 
 ///<reference path="../react-native/react-native.d.ts" />
 
 
-import React from 'react-native'
-const  { StyleSheet, Text, View } = React
+import * as React from 'react-native'
+import {
+    StyleSheet,
+    Text,
+    View,
+    AppState,
+    AppStateIOS,
+    ViewPagerAndroid,
+    Dimensions,
+    BackAndroid,
+} from 'react-native';
+
+function testDimensions() {
+  var {
+    width,
+    height,
+    scale,
+    fontScale,
+  } = Dimensions.get("window");
+
+  var {
+    width,
+    height,
+    scale,
+    fontScale,
+  } = Dimensions.get("screen");
+}
+
+BackAndroid.addEventListener("hardwareBackPress", () => {
+});
 
 var styles = StyleSheet.create(
     {
@@ -53,11 +75,19 @@ var styles = StyleSheet.create(
 
 class Welcome extends React.Component<any,any> {
 
+    testNativeMethods() {
+      this.setNativeProps({});
+
+      const { rootView } = this.refs;
+
+      rootView.measure((x, y, width, height) => {
+      });
+    }
 
     render() {
 
         return (
-            <View style={styles.container}>
+            <View ref="rootView" style={styles.container}>
                 <Text style={styles.welcome}>
                     Welcome to React Native
                 </Text>
@@ -73,5 +103,40 @@ class Welcome extends React.Component<any,any> {
     }
 }
 
-export default Welcome
+export default Welcome;
 
+// App State
+
+function appStateListener(state : string) {
+    console.log('New state: ' + state);
+}
+
+function appStateTest() {
+    console.log('Current state: ' + AppState.currentState);
+    AppState.addEventListener('change', appStateListener);
+}
+
+function appStateIOSTest() {
+    console.log('Current state: ' + AppStateIOS.currentState);
+    AppStateIOS.addEventListener('change', appStateListener);
+}
+
+// ViewPagerAndroid
+
+export class ViewPagerAndroidTest {
+    render() {
+        return (
+            <ViewPagerAndroid style={{height: 56}}
+                initialPage={0}
+                keyboardDismissMode={'on-drag'}
+                onPageScroll={(e) => {
+                    console.log(`position: ${e.nativeEvent.position}`);
+                    console.log(`offset: ${e.nativeEvent.offset}`);
+                }}
+                onPageSelected={(e) => {
+                    console.log(`position: ${e.nativeEvent.position}`)
+                }}
+                />
+        );
+    }
+}

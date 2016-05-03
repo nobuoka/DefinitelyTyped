@@ -1,28 +1,28 @@
-// Type definitions for react-native 0.14
+// Type definitions for react-native 0.19
 // Project: https://github.com/facebook/react-native
 // Definitions by: Bruno Grieder <https://github.com/bgrieder>
-// Definitions: https://github.com/borisyankov/DefinitelyTyped
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// These definitions are meant to be used with the TSC compiler target set to ES6
+// USING: these definitions are meant to be used with the TSC compiler target set to ES6
 //
-// This work is based on an original work made by Bernd Paradies: https://github.com/bparadie
+// USAGE EXAMPLES: check the RNTSExplorer project at https://github.com/bgrieder/RNTSExplorer
 //
-// WARNING: this work is very much beta:
-//            -it is still missing react-native definitions (see below)
-//            -it re-exports the whole of react 0.14 which may not be what react-native actually does
+// CONTRIBUTING: please open pull requests and make sure that the changes do not break RNTSExplorer (they should not)
+// Do not hesitate to open a pull request against RNTSExplorer to provide an example for a case not covered by the current App
 //
-// I (Bruno Grieder) complete these definitions as I port the UI Explorer to Typescript
-// If you are in a hurry for the latest definitions, check those in https://github.com/bgrieder/RNTSExplorer
+// CREDITS: This work is based on an original work made by Bernd Paradies: https://github.com/bparadie
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// <reference path="../react/react.d.ts" />
 
+//so we know what is "original" React
 import React = __React;
 
-declare namespace  ReactNative {
+//react-native "extends" react
+declare module "react-native" {
 
 
     /**
@@ -47,7 +47,7 @@ declare namespace  ReactNative {
 
 
         // not in lib.es6.d.ts but called by react-native
-        done(callback?: (value: T) => void): void;
+        done( callback?: ( value: T ) => void ): void;
     }
 
     export interface PromiseConstructor {
@@ -121,6 +121,110 @@ declare namespace  ReactNative {
     // @see lib.es6.d.ts
     export var Promise: PromiseConstructor;
 
+    module NativeMethodsMixin {
+      type MeasureOnSuccessCallback = (
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        pageX: number,
+        pageY: number
+      ) => void
+
+      type MeasureInWindowOnSuccessCallback = (
+        x: number,
+        y: number,
+        width: number,
+        height: number
+      ) => void
+
+      type MeasureLayoutOnSuccessCallback = (
+        left: number,
+        top: number,
+        width: number,
+        height: number
+      ) => void
+    }
+
+    /**
+     * @see https://github.com/facebook/react-native/blob/master/Libraries/ReactIOS/NativeMethodsMixin.js
+     */
+    export class Component<P, S> extends React.Component<P, S> {
+      /**
+       * Determines the location on screen, width, and height of the given view and
+       * returns the values via an async callback. If successful, the callback will
+       * be called with the following arguments:
+       *
+       *  - x
+       *  - y
+       *  - width
+       *  - height
+       *  - pageX
+       *  - pageY
+       *
+       * Note that these measurements are not available until after the rendering
+       * has been completed in native. If you need the measurements as soon as
+       * possible, consider using the [`onLayout`
+       * prop](docs/view.html#onlayout) instead.
+       */
+      measure(callback: NativeMethodsMixin.MeasureOnSuccessCallback): void;
+
+      /**
+       * Determines the location of the given view in the window and returns the
+       * values via an async callback. If the React root view is embedded in
+       * another native view, this will give you the absolute coordinates. If
+       * successful, the callback will be called with the following
+       * arguments:
+       *
+       *  - x
+       *  - y
+       *  - width
+       *  - height
+       *
+       * Note that these measurements are not available until after the rendering
+       * has been completed in native.
+       */
+      measureInWindow(callback: NativeMethodsMixin.MeasureInWindowOnSuccessCallback): void;
+
+      /**
+       * Like [`measure()`](#measure), but measures the view relative an ancestor,
+       * specified as `relativeToNativeNode`. This means that the returned x, y
+       * are relative to the origin x, y of the ancestor view.
+       *
+       * As always, to obtain a native node handle for a component, you can use
+       * `React.findNodeHandle(component)`.
+       */
+      measureLayout(
+        relativeToNativeNode: number,
+        onSuccess: NativeMethodsMixin.MeasureLayoutOnSuccessCallback,
+        onFail: () => void /* currently unused */
+      ): void;
+
+       /**
+        * This function sends props straight to native. They will not participate in
+        * future diff process - this means that if you do not include them in the
+        * next render, they will remain active (see [Direct
+        * Manipulation](docs/direct-manipulation.html)).
+        */
+      setNativeProps(nativeProps: Object): void;
+
+      /**
+       * Requests focus for the given input or view. The exact behavior triggered
+       * will depend on the platform and type of view.
+       */
+      focus(): void;
+
+      /**
+       * Removes focus from an input or view. This is the opposite of `focus()`.
+       */
+      blur(): void;
+
+      refs: {
+        [key: string]: Component<any, any>
+      };
+    }
+
+    //TODO: BGR: Replace with ComponentClass ?
     // node_modules/react-tools/src/classic/class/ReactClass.js
     export interface ReactClass<D, P, S> {
         // TODO:
@@ -135,6 +239,73 @@ declare namespace  ReactNative {
     export type Runnable = ( appParameters: any ) => void;
 
 
+    // Similar to React.SyntheticEvent except for nativeEvent
+    interface NativeSyntheticEvent<T> {
+        bubbles: boolean
+        cancelable: boolean
+        currentTarget: EventTarget
+        defaultPrevented: boolean
+        eventPhase: number
+        isTrusted: boolean
+        nativeEvent: T
+        preventDefault(): void
+        stopPropagation(): void
+        target: EventTarget
+        timeStamp: Date
+        type: string
+    }
+
+    export interface NativeTouchEvent {
+        /**
+         * Array of all touch events that have changed since the last event
+         */
+        changedTouches: NativeTouchEvent[]
+
+        /**
+         * The ID of the touch
+         */
+        identifier: string
+
+        /**
+         * The X position of the touch, relative to the element
+         */
+        locationX: number
+
+        /**
+         * The Y position of the touch, relative to the element
+         */
+        locationY: number
+
+        /**
+         * The X position of the touch, relative to the screen
+         */
+        pageX: number
+
+        /**
+         * The Y position of the touch, relative to the screen
+         */
+        pageY: number
+
+        /**
+         * The node id of the element receiving the touch event
+         */
+        target: string
+
+        /**
+         * A time identifier for the touch, useful for velocity calculation
+         */
+        timestamp: number
+
+        /**
+         * Array of all current touches on the screen
+         */
+        touches : NativeTouchEvent[]
+    }
+
+    export interface GestureResponderEvent extends NativeSyntheticEvent<NativeTouchEvent> {
+    }
+
+
     export interface  PointProperties {
         x: number
         y: number
@@ -147,8 +318,22 @@ declare namespace  ReactNative {
         right?: number
     }
 
+    /**
+     * //FIXME: need to find documentation on which compoenent is a native (i.e. non composite component)
+     */
     export interface NativeComponent {
-        setNativeProps: (props: Object) => void
+    }
+
+    /**
+     * //FIXME: need to find documentation on which component is a TTouchable and can implement that interface
+     * @see React.DOMAtributes
+     */
+    export interface Touchable {
+        onTouchStart?: ( event: GestureResponderEvent ) => void
+        onTouchMove?: ( event: GestureResponderEvent ) => void
+        onTouchEnd?: ( event: GestureResponderEvent ) => void
+        onTouchCancel?: ( event: GestureResponderEvent ) => void
+        onTouchEndCapture?: ( event: GestureResponderEvent ) => void
     }
 
     export type AppConfig = {
@@ -583,55 +768,6 @@ declare namespace  ReactNative {
     }
 
 
-    export interface GestureResponderEvent {
-        nativeEvent : {
-            /**
-             * Array of all touch events that have changed since the last event
-             */
-            changedTouches: any[]
-
-            /**
-             * The ID of the touch
-             */
-            identifier: string
-
-            /**
-             * The X position of the touch, relative to the element
-             */
-            locationX: number
-
-            /**
-             * The Y position of the touch, relative to the element
-             */
-            locationY: number
-
-            /**
-             * The X position of the touch, relative to the screen
-             */
-            pageX: number
-
-            /**
-             * The Y position of the touch, relative to the screen
-             */
-            pageY: number
-
-            /**
-             * The node id of the element receiving the touch event
-             */
-            target: string
-
-            /**
-             * A time identifier for the touch, useful for velocity calculation
-             */
-            timestamp: number
-
-            /**
-             * Array of all current touches on the screen
-             */
-            touches : any[]
-        }
-    }
-
     /**
      * Gesture recognition on mobile devices is much more complicated than web.
      * A touch can go through several phases as the app determines what the user's intention is.
@@ -667,12 +803,12 @@ declare namespace  ReactNative {
         /**
          * Does this view want to become responder on the start of a touch?
          */
-        onStartShouldSetResponder?: (event: GestureResponderEvent) => boolean
+        onStartShouldSetResponder?: ( event: GestureResponderEvent ) => boolean
 
         /**
          * Called for every touch move on the View when it is not the responder: does this view want to "claim" touch responsiveness?
          */
-        onMoveShouldSetResponder?: (event: GestureResponderEvent) => boolean
+        onMoveShouldSetResponder?: ( event: GestureResponderEvent ) => boolean
 
         /**
          * If the View returns true and attempts to become the responder, one of the following will happen:
@@ -682,12 +818,12 @@ declare namespace  ReactNative {
          * The View is now responding for touch events.
          * This is the time to highlight and show the user what is happening
          */
-        onResponderGrant?: (event: GestureResponderEvent) => void
+        onResponderGrant?: ( event: GestureResponderEvent ) => void
 
         /**
          * Something else is the responder right now and will not release it
          */
-        onResponderReject?: (event: GestureResponderEvent) => void
+        onResponderReject?: ( event: GestureResponderEvent ) => void
 
         /**
          * If the view is responding, the following handlers can be called:
@@ -696,25 +832,25 @@ declare namespace  ReactNative {
         /**
          * The user is moving their finger
          */
-        onResponderMove?: (event: GestureResponderEvent) => void
+        onResponderMove?: ( event: GestureResponderEvent ) => void
 
         /**
          * Fired at the end of the touch, ie "touchUp"
          */
-        onResponderRelease?: (event: GestureResponderEvent) => void
+        onResponderRelease?: ( event: GestureResponderEvent ) => void
 
         /**
          *  Something else wants to become responder.
          *  Should this view release the responder? Returning true allows release
          */
-        onResponderTerminationRequest?: (event: GestureResponderEvent) => boolean
+        onResponderTerminationRequest?: ( event: GestureResponderEvent ) => boolean
 
         /**
          * The responder has been taken from the View.
          * Might be taken by other views after a call to onResponderTerminationRequest,
          * or might be taken by the OS without asking (happens with control center/ notification center on iOS)
          */
-        onResponderTerminate?: (event: GestureResponderEvent) => void
+        onResponderTerminate?: ( event: GestureResponderEvent ) => void
 
         /**
          * onStartShouldSetResponder and onMoveShouldSetResponder are called with a bubbling pattern,
@@ -729,7 +865,7 @@ declare namespace  ReactNative {
          * So if a parent View wants to prevent the child from becoming responder on a touch start,
          * it should have a onStartShouldSetResponderCapture handler which returns true.
          */
-        onStartShouldSetResponderCapture?: (event: GestureResponderEvent) => boolean
+        onStartShouldSetResponderCapture?: ( event: GestureResponderEvent ) => boolean
 
         /**
          * onStartShouldSetResponder and onMoveShouldSetResponder are called with a bubbling pattern,
@@ -864,7 +1000,7 @@ declare namespace  ReactNative {
     /**
      * @see https://facebook.github.io/react-native/docs/view.html#props
      */
-    export interface ViewProperties extends ViewPropertiesAndroid, ViewPropertiesIOS, GestureResponderHandlers, React.Props<ViewStatic> {
+    export interface ViewProperties extends ViewPropertiesAndroid, ViewPropertiesIOS, GestureResponderHandlers, Touchable, React.Props<ViewStatic> {
 
         /**
          * Overrides the text that's read by the screen reader when the user interacts with the element. By default, the label is constructed by traversing all the children and accumulating all the Text nodes separated by space.
@@ -942,6 +1078,31 @@ declare namespace  ReactNative {
      * whether that is a UIView, <div>, android.view, etc.
      */
     export interface ViewStatic extends NativeComponent, React.ComponentClass<ViewProperties> {
+
+    }
+
+    /**
+     * @see https://facebook.github.io/react-native/docs/viewpagerandroid.html#props
+     */
+
+
+    export interface ViewPagerAndroidOnPageScrollEventData {
+        position: number;
+        offset: number;
+    }
+
+    export interface ViewPagerAndroidOnPageSelectedEventData {
+        position: number;
+    }
+
+    export interface ViewPagerAndroidProperties extends ViewProperties {
+        initialPage?: number;
+        onPageScroll?: ( event: NativeSyntheticEvent<ViewPagerAndroidOnPageScrollEventData> ) => void;
+        onPageSelected?: ( event: NativeSyntheticEvent<ViewPagerAndroidOnPageSelectedEventData> ) => void;
+        keyboardDismissMode?: string; /* enum('none', 'on-drag') */
+    }
+
+    export interface ViewPagerAndroidStatic extends NativeComponent, React.ComponentClass<ViewPagerAndroidProperties> {
 
     }
 
@@ -1680,7 +1841,7 @@ declare namespace  ReactNative {
         showsPointsOfInterest?: boolean
     }
 
-    export interface MapViewProperties extends MapViewPropertiesIOS, React.Props<MapViewStatic> {
+    export interface MapViewProperties extends MapViewPropertiesIOS, Touchable, React.Props<MapViewStatic> {
 
         /**
          * Map annotations with title/subtitle.
@@ -2021,7 +2182,7 @@ declare namespace  ReactNative {
     }
 
     export interface Route {
-        component?: ComponentClass<ViewProperties>
+        component?: React.ComponentClass<ViewProperties>
         id?: string
         title?: string
         passProps?: Object;
@@ -2423,7 +2584,6 @@ declare namespace  ReactNative {
     }
 
 
-
     export interface PixelRatioStatic {
         get(): number;
     }
@@ -2441,8 +2601,28 @@ declare namespace  ReactNative {
         width: number;
         height: number;
         scale: number;
+        fontScale: number;
     }
 
+    /**
+     * Initial dimensions are set before `runApplication` is called so they should
+     * be available before any other require's are run, but may be updated later.
+     *
+     * Note: Although dimensions are available immediately, they may change (e.g
+     * due to device rotation) so any rendering logic or styles that depend on
+     * these constants should try to call this function on every render, rather
+     * than caching the value (for example, using inline styles rather than
+     * setting a value in a `StyleSheet`).
+     *
+     * Example: `var {height, width} = Dimensions.get('window');`
+     *
+     * @param {string} dim Name of dimension as defined when calling `set`.
+     * @returns {Object?} Value for the dimension.
+     * @see https://facebook.github.io/react-native/docs/dimensions.html#content
+     */
+    export interface Dimensions {
+      get( what: "window" | "screen" ): ScaledSize;
+    }
 
     export interface InteractionManagerStatic {
         runAfterInteractions( fn: () => void ): void;
@@ -2632,7 +2812,7 @@ declare namespace  ReactNative {
         zoomScale?: number
     }
 
-    export interface ScrollViewProperties extends ScrollViewIOSProperties {
+    export interface ScrollViewProperties extends ScrollViewIOSProperties, Touchable {
 
         /**
          * These styles will be applied to the scroll view content container which
@@ -2679,7 +2859,7 @@ declare namespace  ReactNative {
          * Fires at most once per frame during scrolling.
          * The frequency of the events can be contolled using the scrollEventThrottle prop.
          */
-        onScroll?: () => void
+        onScroll?: (event?: { nativeEvent: NativeScrollEvent }) => void
 
         /**
          * Experimental: When true offscreen child views (whose `overflow` value is
@@ -2710,7 +2890,21 @@ declare namespace  ReactNative {
     }
 
     interface ScrollViewStatic extends React.ComponentClass<ScrollViewProps> {
-
+        /**
+         * Scrolls to a given x, y offset, either immediately or with a smooth animation.
+         * Syntax:
+         *
+         * scrollTo(options: {x: number = 0; y: number = 0; animated: boolean = true})
+         *
+         * Note: The weird argument signature is due to the fact that, for historical reasons,
+         * the function also accepts separate arguments as as alternative to the options object.
+         * This is deprecated due to ambiguity (y before x), and SHOULD NOT BE USED.
+         */
+        scrollTo(
+            y?: number | { x?: number, y?: number, animated?: boolean },
+            x?: number,
+            animated?: boolean
+        ): void;
     }
 
 
@@ -2820,7 +3014,7 @@ declare namespace  ReactNative {
      *
      * @see https://facebook.github.io/react-native/docs/appstateios.html#content
      */
-    export interface AppStateIOSStatic {
+    export interface AppStateStatic {
         currentState: string
         addEventListener( type: string, listener: ( state: string ) => void ): void
         removeEventListener( type: string, listener: ( state: string ) => void ): void
@@ -2962,13 +3156,13 @@ declare namespace  ReactNative {
          * eventName is expected to be `change`
          * //FIXME: No doc - inferred from NetInfo.js
          */
-        addEventListener: (eventName: string, listener: (result: T) => void) => void
+        addEventListener: ( eventName: string, listener: ( result: T ) => void ) => void
 
         /**
          * eventName is expected to be `change`
          * //FIXME: No doc - inferred from NetInfo.js
          */
-        removeEventListener: (eventName: string, listener: (result: T) => void) => void
+        removeEventListener: ( eventName: string, listener: ( result: T ) => void ) => void
     }
 
     /**
@@ -2994,30 +3188,6 @@ declare namespace  ReactNative {
 
         //FIXME: Documentation missing
         isConnectionMetered: any
-    }
-
-    /**
-     * //FIXME: Documentation ?
-     */
-    export interface PanResponderEvent {
-
-        bubbles: boolean
-        cancelable: boolean
-        currentTarget: number
-        defaultPrevented: boolean
-        dispatchConfig: any
-        dispatchMarker: any
-        eventPhase: any
-        isDefaultPrevented: () => boolean
-        isPropagationStopped: () => boolean
-        isTrusted: boolean
-        nativeEvent: GestureResponderEvent
-        path: any
-        target: number
-        timeStamp: number
-        touchHistory: any[]
-        type: any
-
     }
 
 
@@ -3083,19 +3253,19 @@ declare namespace  ReactNative {
      * @see documentation of GestureResponderHandlers
      */
     export interface PanResponderCallbacks {
-        onMoveShouldSetPanResponder?: ( e: PanResponderEvent, gestureState: PanResponderGestureState ) => boolean
-        onStartShouldSetPanResponder?: ( e: PanResponderEvent, gestureState: PanResponderGestureState ) => void
-        onPanResponderGrant?: ( e: PanResponderEvent, gestureState: PanResponderGestureState ) => void
-        onPanResponderMove?: ( e: PanResponderEvent, gestureState: PanResponderGestureState ) => void
-        onPanResponderRelease?: ( e: PanResponderEvent, gestureState: PanResponderGestureState ) => void
-        onPanResponderTerminate?: ( e: PanResponderEvent, gestureState: PanResponderGestureState ) => void
+        onMoveShouldSetPanResponder?: ( e: GestureResponderEvent, gestureState: PanResponderGestureState ) => boolean
+        onStartShouldSetPanResponder?: ( e: GestureResponderEvent, gestureState: PanResponderGestureState ) => void
+        onPanResponderGrant?: ( e: GestureResponderEvent, gestureState: PanResponderGestureState ) => void
+        onPanResponderMove?: ( e: GestureResponderEvent, gestureState: PanResponderGestureState ) => void
+        onPanResponderRelease?: ( e: GestureResponderEvent, gestureState: PanResponderGestureState ) => void
+        onPanResponderTerminate?: ( e: GestureResponderEvent, gestureState: PanResponderGestureState ) => void
 
-        onMoveShouldSetPanResponderCapture?: ( e: PanResponderEvent, gestureState: PanResponderGestureState ) => boolean
-        onStartShouldSetPanResponderCapture?: ( e: PanResponderEvent, gestureState: PanResponderGestureState ) => boolean
-        onPanResponderReject?: ( e: PanResponderEvent, gestureState: PanResponderGestureState ) => void
-        onPanResponderStart?: ( e: PanResponderEvent, gestureState: PanResponderGestureState ) => void
-        onPanResponderEnd?: ( e: PanResponderEvent, gestureState: PanResponderGestureState ) => void
-        onPanResponderTerminationRequest?: ( e: PanResponderEvent, gestureState: PanResponderGestureState ) => boolean
+        onMoveShouldSetPanResponderCapture?: ( e: GestureResponderEvent, gestureState: PanResponderGestureState ) => boolean
+        onStartShouldSetPanResponderCapture?: ( e: GestureResponderEvent, gestureState: PanResponderGestureState ) => boolean
+        onPanResponderReject?: ( e: GestureResponderEvent, gestureState: PanResponderGestureState ) => void
+        onPanResponderStart?: ( e: GestureResponderEvent, gestureState: PanResponderGestureState ) => void
+        onPanResponderEnd?: ( e: GestureResponderEvent, gestureState: PanResponderGestureState ) => void
+        onPanResponderTerminationRequest?: ( e: GestureResponderEvent, gestureState: PanResponderGestureState ) => boolean
     }
 
     export interface PanResponderInstance {
@@ -3145,7 +3315,449 @@ declare namespace  ReactNative {
         create( config: PanResponderCallbacks ): PanResponderInstance
     }
 
+    export interface PushNotificationPermissions {
+        alert?: boolean
+        badge?: boolean
+        sound?: boolean
+    }
 
+    export interface PushNotification {
+
+
+        /**
+         * An alias for `getAlert` to get the notification's main message string
+         */
+        getMessage(): string | Object
+
+        /**
+         * Gets the sound string from the `aps` object
+         */
+        getSound(): string
+
+        /**
+         * Gets the notification's main message from the `aps` object
+         */
+        getAlert(): string | Object
+
+        /**
+         * Gets the badge count number from the `aps` object
+         */
+        getBadgeCount(): number
+
+        /**
+         * Gets the data object on the notif
+         */
+        getData(): Object
+
+    }
+
+
+    /**
+     * Handle push notifications for your app, including permission handling and icon badge number.
+     * @see https://facebook.github.io/react-native/docs/pushnotificationios.html#content
+     *
+     * //FIXME: BGR: The documentation seems completely off compared to the actual js implementation. I could never get the example to run
+     */
+    export interface PushNotificationIOSStatic {
+
+        /**
+         * Sets the badge number for the app icon on the home screen
+         */
+        setApplicationIconBadgeNumber( number: number ): void
+
+        /**
+         * Gets the current badge number for the app icon on the home screen
+         */
+        getApplicationIconBadgeNumber( callback: ( badge: number ) => void ): void
+
+        /**
+         * Attaches a listener to remote notifications while the app is running in the
+         * foreground or the background.
+         *
+         * The handler will get be invoked with an instance of `PushNotificationIOS`
+         *
+         * The type MUST be 'notification'
+         */
+        addEventListener( type: string, handler: ( notification: PushNotification ) => void ):void
+
+        /**
+         * Requests all notification permissions from iOS, prompting the user's
+         * dialog box.
+         */
+        requestPermissions(): void
+
+        /**
+         * See what push permissions are currently enabled. `callback` will be
+         * invoked with a `permissions` object:
+         *
+         *  - `alert` :boolean
+         *  - `badge` :boolean
+         *  - `sound` :boolean
+         */
+        checkPermissions( callback: ( permissions: PushNotificationPermissions ) => void ): void
+
+        /**
+         * Removes the event listener. Do this in `componentWillUnmount` to prevent
+         * memory leaks
+         */
+        removeEventListener( type: string, handler: ( notification: PushNotification ) => void ): void
+
+        /**
+         * An initial notification will be available if the app was cold-launched
+         * from a notification.
+         *
+         * The first caller of `popInitialNotification` will get the initial
+         * notification object, or `null`. Subsequent invocations will return null.
+         */
+        popInitialNotification(): PushNotification
+    }
+
+
+    /**
+     * @enum('default', 'light-content')
+     */
+    export type StatusBarStyle = string
+
+    /**
+     * @enum('none','fade', 'slide')
+     */
+    type StatusBarAnimation = string
+
+
+    /**
+     * //FIXME: No documentation is available (although this is self explanatory)
+     *
+     * @see https://facebook.github.io/react-native/docs/statusbarios.html#content
+     */
+    export interface StatusBarIOSStatic {
+
+        setStyle(style: StatusBarStyle, animated?: boolean): void
+
+        setHidden(hidden: boolean, animation?: StatusBarAnimation): void
+
+        setNetworkActivityIndicatorVisible(visible: boolean): void
+    }
+
+    /**
+     * The Vibration API is exposed at VibrationIOS.vibrate().
+     * On iOS, calling this function will trigger a one second vibration.
+     * The vibration is asynchronous so this method will return immediately.
+     *
+     * There will be no effect on devices that do not support Vibration, eg. the iOS simulator.
+     *
+     * Vibration patterns are currently unsupported.
+     *
+     * @see https://facebook.github.io/react-native/docs/vibrationios.html#content
+     */
+    export interface VibrationIOSStatic {
+        vibrate(): void
+    }
+
+    export module Animated {
+      // Most (all?) functions where AnimatedValue is used any subclass of Animated can be used as well.
+      type AnimatedValue = Animated;
+      type AnimatedValueXY = ValueXY;
+
+      type Base = Animated;
+
+      class Animated {
+        // Internal class, no public API.
+      }
+
+      class AnimatedWithChildren extends Animated {
+        // Internal class, no public API.
+      }
+
+      class AnimatedInterpolation extends AnimatedWithChildren {
+        interpolate(config: InterpolationConfigType): AnimatedInterpolation;
+      }
+
+      type ExtrapolateType = 'extend' | 'identity' | 'clamp';
+
+      type InterpolationConfigType = {
+        inputRange: number[];
+        outputRange: (number[] | string[]);
+        easing?: ((input: number) => number);
+        extrapolate?: ExtrapolateType;
+        extrapolateLeft?: ExtrapolateType;
+        extrapolateRight?: ExtrapolateType;
+      };
+
+      type ValueListenerCallback = (state: {value: number}) => void;
+
+      /**
+       * Standard value for driving animations.  One `Animated.Value` can drive
+       * multiple properties in a synchronized fashion, but can only be driven by one
+       * mechanism at a time.  Using a new mechanism (e.g. starting a new animation,
+       * or calling `setValue`) will stop any previous ones.
+       */
+      export class Value extends AnimatedWithChildren {
+        constructor(value: number);
+
+        setValue(value: number): void;
+
+        /**
+         * Sets an offset that is applied on top of whatever value is set, whether via
+         * `setValue`, an animation, or `Animated.event`.  Useful for compensating
+         * things like the start of a pan gesture.
+         */
+        setOffset(offset: number): void;
+
+        /**
+         * Merges the offset value into the base value and resets the offset to zero.
+         * The final output of the value is unchanged.
+         */
+        flattenOffset(): void;
+
+        /**
+         * Adds an asynchronous listener to the value so you can observe updates from
+         * animations.  This is useful because there is no way to
+         * synchronously read the value because it might be driven natively.
+         */
+        addListener(callback: ValueListenerCallback): string;
+
+        removeListener(id: string): void;
+
+        removeAllListeners(): void;
+
+        /**
+         * Stops any running animation or tracking.  `callback` is invoked with the
+         * final value after stopping the animation, which is useful for updating
+         * state to match the animation position with layout.
+         */
+        stopAnimation(callback?: (value: number) => void): void;
+
+        /**
+         * Interpolates the value before updating the property, e.g. mapping 0-1 to
+         * 0-10.
+         */
+        interpolate(config: InterpolationConfigType): AnimatedInterpolation;
+      }
+
+      type ValueXYListenerCallback = (value: {x: number; y: number}) => void;
+
+      /**
+       * 2D Value for driving 2D animations, such as pan gestures.  Almost identical
+       * API to normal `Animated.Value`, but multiplexed.  Contains two regular
+       * `Animated.Value`s under the hood.
+       */
+      export class ValueXY extends AnimatedWithChildren {
+        x: AnimatedValue;
+        y: AnimatedValue;
+
+        constructor(valueIn?: {x: number | AnimatedValue; y: number | AnimatedValue});
+
+        setValue(value: {x: number; y: number}): void;
+
+        setOffset(offset: {x: number; y: number}): void;
+
+        flattenOffset(): void
+
+        stopAnimation(callback?: () => number): void;
+
+        addListener(callback: ValueXYListenerCallback): string;
+
+        removeListener(id: string): void;
+
+        /**
+         * Converts `{x, y}` into `{left, top}` for use in style, e.g.
+         *
+         *```javascript
+         *  style={this.state.anim.getLayout()}
+         *```
+         */
+        getLayout(): { left: AnimatedValue, top: AnimatedValue };
+
+        /**
+         * Converts `{x, y}` into a useable translation transform, e.g.
+         *
+         *```javascript
+         *  style={{
+         *    transform: this.state.anim.getTranslateTransform()
+         *  }}
+         *```
+         */
+        getTranslateTransform(): {[key: string]: AnimatedValue}[];
+
+      }
+
+      type EndResult = {finished: boolean};
+      type EndCallback = (result: EndResult) => void;
+
+      interface CompositeAnimation {
+        start: (callback?: EndCallback) => void;
+        stop: () => void;
+      }
+
+      interface AnimationConfig {
+        isInteraction?: boolean;
+        useNativeDriver?: boolean;
+      }
+
+      /**
+       * Animates a value from an initial velocity to zero based on a decay
+       * coefficient.
+       */
+      export function decay(
+        value: AnimatedValue | AnimatedValueXY,
+        config: DecayAnimationConfig
+      ): CompositeAnimation;
+
+      interface DecayAnimationConfig extends AnimationConfig {
+        velocity: number | {x: number, y: number};
+        deceleration?: number;
+      }
+
+      /**
+       * Animates a value along a timed easing curve.  The `Easing` module has tons
+       * of pre-defined curves, or you can use your own function.
+       */
+      export var timing: (
+        value: AnimatedValue | AnimatedValueXY,
+        config: TimingAnimationConfig
+      ) => CompositeAnimation;
+
+      interface TimingAnimationConfig extends AnimationConfig {
+        toValue: number | AnimatedValue | {x: number, y: number} | AnimatedValueXY;
+        easing?: (value: number) => number;
+        duration?: number;
+        delay?: number;
+      }
+
+      interface SpringAnimationConfig extends AnimationConfig {
+        toValue: number | AnimatedValue | {x: number, y: number} | AnimatedValueXY;
+        overshootClamping?: boolean;
+        restDisplacementThreshold?: number;
+        restSpeedThreshold?: number;
+        velocity?: number | {x: number, y: number};
+        bounciness?: number;
+        speed?: number;
+        tension?: number;
+        friction?: number;
+      }
+
+      /**
+       * Creates a new Animated value composed from two Animated values added
+       * together.
+       */
+      export function add(
+        a: Animated,
+        b: Animated
+      ): AnimatedAddition;
+
+      class AnimatedAddition extends AnimatedInterpolation {}
+
+      /**
+       * Creates a new Animated value composed from two Animated values multiplied
+       * together.
+       */
+       export function multiply(
+        a: Animated,
+        b: Animated
+      ): AnimatedMultiplication;
+
+      class AnimatedMultiplication extends AnimatedInterpolation {}
+
+      /**
+       * Creates a new Animated value that is the (non-negative) modulo of the
+       * provided Animated value
+       */
+      export function modulo(
+        a: Animated,
+        modulus: number
+      ): AnimatedModulo;
+
+      class AnimatedModulo extends AnimatedInterpolation {}
+
+      /**
+       * Starts an animation after the given delay.
+       */
+      export function delay(time: number): CompositeAnimation;
+
+      /**
+       * Starts an array of animations in order, waiting for each to complete
+       * before starting the next.  If the current running animation is stopped, no
+       * following animations will be started.
+       */
+      export function sequence(
+        animations: Array<CompositeAnimation>
+      ): CompositeAnimation;
+
+      /**
+       * Array of animations may run in parallel (overlap), but are started in
+       * sequence with successive delays.  Nice for doing trailing effects.
+       */
+
+      export function stagger(
+        time: number,
+        animations: Array<CompositeAnimation>
+      ): CompositeAnimation
+
+      /**
+       * Spring animation based on Rebound and Origami.  Tracks velocity state to
+       * create fluid motions as the `toValue` updates, and can be chained together.
+       */
+      export var spring: (
+        value: AnimatedValue | AnimatedValueXY,
+        config: SpringAnimationConfig
+      ) => CompositeAnimation;
+
+      type ParallelConfig = {
+        stopTogether?: boolean; // If one is stopped, stop all.  default: true
+      }
+
+      /**
+       * Starts an array of animations all at the same time.  By default, if one
+       * of the animations is stopped, they will all be stopped.  You can override
+       * this with the `stopTogether` flag.
+       */
+      var parallel: (
+        animations: Array<CompositeAnimation>,
+        config?: ParallelConfig
+      ) => CompositeAnimation;
+
+      type Mapping = {[key: string]: Mapping} | AnimatedValue;
+      interface EventConfig {
+        listener?: Function
+      }
+
+      /**
+       *  Takes an array of mappings and extracts values from each arg accordingly,
+       *  then calls `setValue` on the mapped outputs.  e.g.
+       *
+       *```javascript
+       *  onScroll={Animated.event(
+       *    [{nativeEvent: {contentOffset: {x: this._scrollX}}}]
+       *    {listener},          // Optional async listener
+       *  )
+       *  ...
+       *  onPanResponderMove: Animated.event([
+       *    null,                // raw event arg ignored
+       *    {dx: this._panX},    // gestureState arg
+       *  ]),
+       *```
+       */
+      var event: (
+        argMapping: Mapping[],
+        config?: EventConfig
+      ) => (...args: any[]) => void;
+
+      /**
+       * Animated variants of the basic native views. Accepts Animated.Value for
+       * props and style.
+       */
+      export var View: any;
+      export var Image: any;
+      export var Text: any;
+    }
+
+    export namespace BackAndroid {
+      type EVENT_NAME = "hardwareBackPress";
+
+      export function exitApp(): void;
+      export function addEventListener(event: EVENT_NAME, fn: Function): void;
+      export function removeEventListener(event: EVENT_NAME, fn: Function): void;
+    }
 
     //////////////////////////////////////////////////////////////////////////
     //
@@ -3219,6 +3831,9 @@ declare namespace  ReactNative {
     export var View: ViewStatic
     export type View = ViewStatic
 
+    export var ViewPagerAndroid: ViewPagerAndroidStatic
+    export type ViewPagerAndroid = ViewPagerAndroidStatic
+
     export var WebView: WebViewStatic
     export type WebView = WebViewStatic
 
@@ -3233,8 +3848,11 @@ declare namespace  ReactNative {
     export var AlertIOS: AlertIOSStatic
     export type AlertIOS = AlertIOSStatic
 
-    export var AppStateIOS: AppStateIOSStatic
-    export type AppStateIOS = AppStateIOSStatic
+    export var AppState : AppStateStatic;
+    export type AppState = AppStateStatic;
+
+    export var AppStateIOS: AppStateStatic
+    export type AppStateIOS = AppStateStatic
 
     export var AsyncStorage: AsyncStorageStatic
     export type AsyncStorage = AsyncStorageStatic
@@ -3248,6 +3866,21 @@ declare namespace  ReactNative {
     export var PanResponder: PanResponderStatic
     export type PanResponder = PanResponderStatic
 
+    export var PushNotificationIOS: PushNotificationIOSStatic
+    export type PushNotificationIOS = PushNotificationIOSStatic
+
+    export var StatusBarIOS: StatusBarIOSStatic
+    export type StatusBarIOS = StatusBarIOSStatic
+
+    export var VibrationIOS: VibrationIOSStatic
+    export type VibrationIOS = VibrationIOSStatic
+
+    export var Dimensions: Dimensions;
+
+    //
+    // /TODO: BGR: These are leftovers of the initial port that must be revisited
+    //
+
     export var SegmentedControlIOS: React.ComponentClass<SegmentedControlIOSProperties>
 
     export var PixelRatio: PixelRatioStatic
@@ -3256,231 +3889,13 @@ declare namespace  ReactNative {
     export type DeviceEventSubscription = DeviceEventSubscriptionStatic
     export var InteractionManager: InteractionManagerStatic
 
-
-
-
     //////////////////////////////////////////////////////////////////////////
-    //
-    //  R E A C T  -  0 . 1 4
-    //
-    //////////////////////////////////////////////////////////////////////////
-
-
-    export type ReactType = React.ReactType;
-
-    export interface ReactElement<P> extends React.ReactElement<P> {}
-
-    export interface ClassicElement<P> extends React.ClassicElement<P> {}
-
-    export interface DOMElement<P> extends React.DOMElement<P> {}
-
-    export type HTMLElement =React.ReactHTMLElement;
-    export type SVGElement = React.ReactSVGElement;
-
-    //
-    // Factories
-    // ----------------------------------------------------------------------
-
-    export interface Factory<P> extends React.Factory<P> {}
-
-    export interface ClassicFactory<P> extends React.ClassicFactory<P> {}
-
-    export interface DOMFactory<P> extends React.DOMFactory<P> {}
-
-    export type HTMLFactory = React.HTMLFactory;
-    export type SVGFactory = React.SVGFactory;
-
-    //
-    // React Nodes
-    // http://facebook.github.io/react/docs/glossary.html
-    // ----------------------------------------------------------------------
-
-    export type ReactText = React.ReactText;
-    export type ReactChild = React.ReactChild;
-
-    // Should be Array<ReactNode> but type aliases cannot be recursive
-    export type ReactFragment = React.ReactFragment;
-    export type ReactNode = React.ReactNode;
-
-    //
-    // Top Level API
-    // ----------------------------------------------------------------------
-
-    export function createClass<P, S>( spec: React.ComponentSpec<P, S> ): React.ClassicComponentClass<P>;
-
-    export function createFactory<P>( type: string ): React.DOMFactory<P>;
-    export function createFactory<P>( type: React.ClassicComponentClass<P> | string ): React.ClassicFactory<P>;
-    export function createFactory<P>( type: React.ComponentClass<P> ): React.Factory<P>;
-
-    export function createElement<P>( type: string,
-                                      props?: P,
-                                      ...children: React.ReactNode[] ): React.DOMElement<P>;
-    export function createElement<P>( type: React.ClassicComponentClass<P> | string,
-                                      props?: P,
-                                      ...children: React.ReactNode[] ): React.ClassicElement<P>;
-    export function createElement<P>( type: React.ComponentClass<P>,
-                                      props?: P,
-                                      ...children: React.ReactNode[] ): React.ReactElement<P>;
-
-    export function cloneElement<P>( element: React.DOMElement<P>,
-                                     props?: P,
-                                     ...children: React.ReactNode[] ): React.DOMElement<P>;
-    export function cloneElement<P>( element: React.ClassicElement<P>,
-                                     props?: P,
-                                     ...children: React.ReactNode[] ): React.ClassicElement<P>;
-    export function cloneElement<P>( element: React.ReactElement<P>,
-                                     props?: P,
-                                     ...children: React.ReactNode[] ): React.ReactElement<P>;
-
-    export function isValidElement( object: {} ): boolean;
-
-    export var DOM: React.ReactDOM;
-    export var PropTypes: React.ReactPropTypes;
-    export var Children: React.ReactChildren;
-
-    //
-    // Component API
-    // ----------------------------------------------------------------------
-
-    // Base component for plain JS classes
-    export class Component<P, S> extends React.Component<P,S> {}
-
-    export interface ClassicComponent<P, S> extends React.ClassicComponent<P,S> {}
-
-    export interface DOMComponent<P> extends ClassicComponent<P, any> {
-        tagName: string;
-    }
-
-    export interface ChildContextProvider<CC> extends React.ChildContextProvider<CC> {}
-
-    //
-    // Class Interfaces
-    // ----------------------------------------------------------------------
-
-    export interface ComponentClass<P> extends React.ComponentClass<P> {}
-
-    export interface ClassicComponentClass<P> extends React.ClassicComponentClass<P> {}
-
-    //
-    // Component Specs and Lifecycle
-    // ----------------------------------------------------------------------
-
-    export interface ComponentLifecycle<P, S> extends React.ComponentLifecycle<P,S> {}
-
-    export interface Mixin<P, S> extends React.Mixin<P,S> {}
-
-    export interface ComponentSpec<P, S> extends React.ComponentSpec<P,S> {}
-
-    //
-    // Event System
-    // ----------------------------------------------------------------------
-
-    export interface SyntheticEvent extends React.SyntheticEvent {}
-
-    export interface DragEvent extends React.DragEvent {}
-
-    export interface ClipboardEvent extends React.ClipboardEvent {}
-
-    export interface KeyboardEvent extends React.KeyboardEvent {}
-
-
-    export interface FocusEvent extends React.FocusEvent {}
-
-    export interface FormEvent extends React.FormEvent {}
-
-    export interface MouseEvent extends React.MouseEvent {}
-
-    export interface TouchEvent extends React.TouchEvent {}
-
-    export interface UIEvent extends React.UIEvent {}
-
-    export interface WheelEvent extends React.WheelEvent {}
-
-    //
-    // Event Handler Types
-    // ----------------------------------------------------------------------
-
-    export interface EventHandler<E extends React.SyntheticEvent> extends React.EventHandler<E> {}
-
-    export interface DragEventHandler extends React.DragEventHandler {}
-    export interface ClipboardEventHandler extends React.ClipboardEventHandler {}
-    export interface KeyboardEventHandler extends React.KeyboardEventHandler {}
-    export interface FocusEventHandler extends React.FocusEventHandler {}
-    export interface FormEventHandler extends React.FormEventHandler {}
-    export interface MouseEventHandler extends React.MouseEventHandler {}
-    export interface TouchEventHandler extends React.TouchEventHandler {}
-    export interface UIEventHandler extends React.UIEventHandler {}
-    export interface WheelEventHandler extends React.WheelEventHandler {}
-
-    //
-    // Props / DOM Attributes
-    // ----------------------------------------------------------------------
-
-    export interface Props<T> extends React.Props<T> {}
-
-    export interface DOMAttributes extends React.DOMAttributes {}
-
-    // This interface is not complete. Only properties accepting
-    // unitless numbers are listed here (see CSSProperty.js in React)
-    export interface CSSProperties extends React.CSSProperties {}
-
-    export interface HTMLAttributes extends React.HTMLAttributes {}
-
-    export interface SVGAttributes extends React.SVGAttributes {}
-
-    //
-    // React.DOM
-    // ----------------------------------------------------------------------
-
-    export interface ReactDOM extends React.ReactDOM {}
-
-    //
-    // React.PropTypes
-    // ----------------------------------------------------------------------
-
-    export interface Validator<T> extends React.Validator<T> {}
-
-    export interface Requireable<T> extends React.Requireable<T> {}
-
-    export interface ValidationMap<T> extends React.ValidationMap<T> {}
-
-    export interface ReactPropTypes extends React.ReactPropTypes {}
-
-    //
-    // React.Children
-    // ----------------------------------------------------------------------
-
-    export interface ReactChildren extends React.ReactChildren {}
-
-    //
-    // Browser Interfaces
-    // https://github.com/nikeee/2048-typescript/blob/master/2048/js/touch.d.ts
-    // ----------------------------------------------------------------------
-
-    export interface AbstractView extends React.AbstractView {}
-
-    export interface Touch extends React.Touch {}
-
-    export interface TouchList extends React.TouchList {}
-
     //
     // Additional ( and controversial)
     //
+    //////////////////////////////////////////////////////////////////////////
 
     export function __spread( target: any, ...sources: any[] ): any;
-
-
-    export interface GlobalStatic {
-
-        /**
-         * Accepts a function as its only argument and calls that function before the next repaint.
-         * It is an essential building block for animations that underlies all of the JavaScript-based animation APIs.
-         * In general, you shouldn't need to call this yourself - the animation API's will manage frame updates for you.
-         * @see https://facebook.github.io/react-native/docs/animations.html#requestanimationframe
-         */
-        requestAnimationFrame( fn: () => void ) : void;
-
-    }
 
     //
     // Add-Ons
@@ -3498,27 +3913,19 @@ declare namespace  ReactNative {
         export var TestModule: TestModuleStatic
         export type TestModule = TestModuleStatic
     }
-
-
 }
 
-declare module "react-native" {
-
-    export default ReactNative
+declare interface ReactNativeGlobalStatic {
+  /**
+   * Accepts a function as its only argument and calls that function before the next repaint.
+   * It is an essential building block for animations that underlies all of the JavaScript-based animation APIs.
+   * In general, you shouldn't need to call this yourself - the animation API's will manage frame updates for you.
+   * @see https://facebook.github.io/react-native/docs/animations.html#requestanimationframe
+   */
+  requestAnimationFrame( fn: () => void ) : void;
 }
 
 
-declare module "Dimensions" {
-    import React from 'react-native';
+declare var global: ReactNativeGlobalStatic;
 
-    interface Dimensions {
-        get( what: string ): React.ScaledSize;
-    }
-
-    var ExportDimensions: Dimensions;
-    export = ExportDimensions;
-}
-
-declare var global: ReactNative.GlobalStatic
-
-declare function require( name: string ): any
+declare function require( name: string ): any;
